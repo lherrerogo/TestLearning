@@ -18,6 +18,7 @@ Every push to `main` deploys automatically through Cloudflare Workers Builds.
 | `src/db.js` | D1 schema and queries. |
 | `public/guide.html` | The guide. Self-contained: no external scripts, fonts or images. |
 | `public/404.html` | Served, with a real 404 status, for any URL that doesn't exist. |
+| `docs/how-we-built-this.pdf` | A plain-words explanation of how this was built and how to build something similar. Not published on the site. |
 | `test/unit/` | Fast unit tests (escaping, cleaning, limits, page markup, hidden-character check). |
 | `test/e2e/` | End-to-end tests against the real Worker on a local D1: over HTTP, and in a real Chrome. |
 | `wrangler.jsonc` | Worker config: entry point, static assets from `./public`, the D1 binding. |
