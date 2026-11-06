@@ -26,7 +26,7 @@ export default {
     try {
       if (request.method === 'GET' || request.method === 'HEAD') {
         const page = parsePage(url.searchParams.get('page'));
-        return await homePage(env, { page, posted: url.searchParams.get('posted') === '1' });
+        return await homePage(env, { page, posted: url.searchParams.get('posted') === '1', partial: wantsPartial(request) });
       }
       if (request.method === 'POST') return await submit(request, url, env);
       return plain(405, 'Method Not Allowed', { Allow: ALLOWED_METHODS });
@@ -38,10 +38,10 @@ export default {
   },
 };
 
-async function homePage(env, { page, posted = false, values, errors, status = 200 }) {
+async function homePage(env, { page, posted = false, values, errors, status = 200, partial = false }) {
   const list = await listMessages(env.DB, page, LIMITS.pageSize);
   const nonce = makeNonce();
-  const body = renderHome({ nonce, ...list, ts: Date.now(), values, errors, posted });
+  const body = renderHome({ nonce, ...list, ts: Date.now(), values, errors, posted, partial });
   return new Response(body, { status, headers: htmlHeaders(nonce) });
 }
 
@@ -62,13 +62,19 @@ async function submit(request, url, env) {
   const timing = checkTiming(form.get('ts'), Date.now());
   if (honeypotFilled || timing !== 'ok') {
     console.log('bot trap', honeypotFilled ? 'honeypot' : timing);
-    return homePage(env, { page: 1, values, errors: { form: TRAP_MESSAGE }, status: 400 });
+    return homePage(env, { page: 1, values, errors: { form: TRAP_MESSAGE }, status: 400, partial: wantsPartial(request) });
   }
 
-  if (!ok) return homePage(env, { page: 1, values, errors, status: 422 });
+  if (!ok) return homePage(env, { page: 1, values, errors, status: 422, partial: wantsPartial(request) });
 
   await addMessage(env.DB, values);
   return new Response(null, { status: 303, headers: { Location: '/?posted=1#messages', 'Cache-Control': 'no-store' } });
+}
+
+// The page script sends X-Partial: 1 and gets back only the <main> markup. fetch() keeps
+// custom headers when it follows the redirect after a successful post.
+function wantsPartial(request) {
+  return request.headers.get('X-Partial') === '1';
 }
 
 // Cross-site form posts are refused. Browsers send Sec-Fetch-Site (which page
@@ -129,6 +135,8 @@ function htmlHeaders(nonce) {
       "default-src 'none'",
       `style-src 'nonce-${nonce}'`,
       `script-src 'nonce-${nonce}'`,
+      // The page script posts the form with fetch() to this same origin.
+      "connect-src 'self'",
       "form-action 'self'",
       "base-uri 'none'",
       "frame-ancestors 'none'",

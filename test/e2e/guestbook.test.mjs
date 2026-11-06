@@ -2,66 +2,19 @@
 // local D1 database in a temp directory. Nothing touches Cloudflare.
 
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
-import net from 'node:net';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { startServer } from './support.mjs';
 
-const WRANGLER = fileURLToPath(new URL('../../node_modules/wrangler/bin/wrangler.js', import.meta.url));
-const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-
-let child;
-let stateDir;
+let server;
 let BASE;
-let log = '';
-
-function freePort() {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.listen(0, '127.0.0.1', () => {
-      const { port } = server.address();
-      server.close(() => resolve(port));
-    });
-    server.on('error', reject);
-  });
-}
 
 before(async () => {
-  stateDir = mkdtempSync(join(tmpdir(), 'testlearning-e2e-'));
-  const port = await freePort();
-  const inspectorPort = await freePort();
-  BASE = `http://127.0.0.1:${port}`;
-
-  child = spawn(
-    process.execPath,
-    [WRANGLER, 'dev', '--port', String(port), '--ip', '127.0.0.1', '--inspector-port', String(inspectorPort), '--persist-to', stateDir],
-    { cwd: ROOT, detached: true, env: { ...process.env, CI: '1', WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1' } },
-  );
-  child.stdout.on('data', (d) => (log += d));
-  child.stderr.on('data', (d) => (log += d));
-
-  const deadline = Date.now() + 90_000;
-  for (;;) {
-    try {
-      const res = await fetch(`${BASE}/guide`);
-      if (res.status === 200) break;
-    } catch {}
-    if (Date.now() > deadline) throw new Error(`wrangler dev did not start:\n${log}`);
-    await new Promise((r) => setTimeout(r, 300));
-  }
+  server = await startServer();
+  BASE = server.base;
 });
 
 after(async () => {
-  if (child?.pid) {
-    try {
-      process.kill(-child.pid, 'SIGTERM');
-    } catch {}
-  }
-  await new Promise((r) => setTimeout(r, 500));
-  if (stateDir) rmSync(stateDir, { recursive: true, force: true });
+  await server?.stop();
 });
 
 // ---- helpers ---------------------------------------------------------------
@@ -105,6 +58,7 @@ describe('routing', () => {
     assert.match(csp, /default-src 'none'/);
     assert.match(csp, /frame-ancestors 'none'/);
     assert.match(csp, /form-action 'self'/);
+    assert.match(csp, /connect-src 'self'(;|$)/);
     assert.ok(!csp.includes('unsafe-inline'));
     for (const t of [...text.matchAll(/<(script|style)\b[^>]*>/g)]) assert.ok(t[0].includes(`nonce="${nonce}"`), t[0]);
     assert.ok(text.includes('name="website"') && text.includes('name="ts"'));
@@ -155,8 +109,8 @@ describe('posting messages', () => {
     const { text } = await home('?posted=1');
     assert.ok(text.includes(`Ada ${t}`));
     assert.ok(text.includes(`Welcome little one ${t}`));
-    assert.ok(text.includes('Thank you!'));
-    assert.ok(!(await home()).text.includes('Thank you!'));
+    assert.ok(text.includes('<p class="banner ok">Thank you!'));
+    assert.ok(!(await home()).text.includes('class="banner ok"'));
   });
 
   it('lists the newest message first', async () => {
@@ -193,6 +147,60 @@ describe('posting messages', () => {
     const res = await post({ name: 'Slow human', message: `real-flow-${t}`, ts });
     assert.equal(res.status, 303);
     assert.ok((await home()).text.includes(`real-flow-${t}`));
+  });
+});
+
+// ---- partial responses for the page script ------------------------------------
+
+describe('partial responses (X-Partial: 1)', () => {
+  it('returns only <main> for GET, with no inline style or script', async () => {
+    const res = await fetch(`${BASE}/`, { headers: { 'X-Partial': '1' } });
+    const text = await res.text();
+    assert.equal(res.status, 200);
+    assert.ok(text.startsWith('<main'));
+    for (const piece of ['<!doctype', '<head', '<style', '<script']) assert.ok(!text.toLowerCase().includes(piece), piece);
+    assert.ok(text.includes('id="list"') && text.includes('id="message-form"'));
+    assert.match(res.headers.get('content-security-policy'), /default-src 'none'/);
+    assert.equal(res.headers.get('cache-control'), 'no-store');
+  });
+
+  it('still returns the full page without the header', async () => {
+    const text = (await home()).text;
+    assert.ok(text.startsWith('<!doctype html>'));
+    assert.ok(text.includes('<style nonce='));
+  });
+
+  it('answers a failed post with a partial that carries the error, status 422', async () => {
+    const res = await post({ name: 'x', message: '   ' }, { headers: { 'X-Partial': '1' } });
+    const text = await res.text();
+    assert.equal(res.status, 422);
+    assert.ok(text.startsWith('<main'));
+    assert.match(text, /<p class="err" id="message-err">Please write a message\.<\/p>/);
+    assert.ok(!text.includes('<style'));
+  });
+
+  it('answers a tripped bot trap with a partial and status 400', async () => {
+    const res = await post({ name: 'x', message: 'y', website: 'spam' }, { headers: { 'X-Partial': '1' } });
+    const text = await res.text();
+    assert.equal(res.status, 400);
+    assert.ok(text.startsWith('<main'));
+    assert.ok(text.includes('too quick, or something looked off'));
+  });
+
+  it('keeps the header across the redirect after a good post, so the list comes back as a partial', async () => {
+    const t = tag();
+    const res = await fetch(`${BASE}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Partial': '1' },
+      body: form({ name: 'Partial', message: `partial-${t}` }),
+    });
+    const text = await res.text();
+    assert.equal(res.status, 200);
+    assert.ok(res.redirected);
+    assert.equal(new URL(res.url).searchParams.get('posted'), '1');
+    assert.ok(text.startsWith('<main'));
+    assert.ok(text.includes(`partial-${t}`));
+    assert.ok(!text.includes('<script'));
   });
 });
 

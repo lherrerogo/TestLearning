@@ -2,7 +2,7 @@
 
 Two things on one Cloudflare Worker:
 
-- **A message board for the baby** at `/`. Visitors enter a name and a kind message; every message is shown below the form, newest first, 20 per page. Messages are stored in Cloudflare D1.
+- **A message board for the baby** at `/`. Visitors enter a name and a kind message; every message is shown below the form, newest first, 20 per page. A live character counter sits under the message box, and a new message appears at the top of the list, with a friendly thank-you, without reloading the page. Messages are stored in Cloudflare D1.
 - **A practical baby care guide** at `/guide`: a single self-contained page covering picking up, holding, soothing, feeding, diapering, safe sleep, bathing and when to call a doctor.
 
 Every push to `main` deploys automatically through Cloudflare Workers Builds.
@@ -18,7 +18,8 @@ Every push to `main` deploys automatically through Cloudflare Workers Builds.
 | `src/db.js` | D1 schema and queries. |
 | `public/guide.html` | The guide. Self-contained: no external scripts, fonts or images. |
 | `public/404.html` | Served, with a real 404 status, for any URL that doesn't exist. |
-| `test/unit/`, `test/e2e/` | Unit tests, and end-to-end tests against the real Worker on a local D1. |
+| `test/unit/` | Fast unit tests (escaping, cleaning, limits, page markup, hidden-character check). |
+| `test/e2e/` | End-to-end tests against the real Worker on a local D1: over HTTP, and in a real Chrome. |
 | `wrangler.jsonc` | Worker config: entry point, static assets from `./public`, the D1 binding. |
 | `package.json`, `package-lock.json` | Pin Wrangler to an exact version. |
 | `.node-version` | Node 22 (Wrangler 4 requires Node 22 or newer). |
@@ -40,13 +41,22 @@ Static files in `public/` are served by Cloudflare directly. Only requests that 
 
 - **Length limits.** Name up to 40 characters, message up to 500, counted as Unicode characters (an emoji is one). Enforced in the browser (`maxlength`), again on the server after cleaning, and loosely in the database (`CHECK`). The request body is capped at 16 KiB, declared or streamed.
 - **Input cleaning.** Control characters, zero-width spaces and bidirectional-override characters are removed. Whitespace is tidied. Messages keep their line breaks.
-- **No HTML injection.** Messages are stored as typed and escaped when the page is built, using a template (`src/html.js`) that escapes every interpolated value by default. Messages are shown as plain text and are never turned into links or markup. A Content-Security-Policy adds a second layer: only the page's own inline style and scripts, tagged with a fresh nonce per response, may run.
+- **No HTML injection.** Messages are stored as typed and escaped when the page is built, using a template (`src/html.js`) that escapes every interpolated value by default. Messages are shown as plain text and are never turned into links or markup. A Content-Security-Policy adds a second layer: only the page's own inline style and scripts, tagged with a fresh nonce per response, may run, and the page may only talk to its own origin (`connect-src 'self'`).
 - **No SQL injection.** All queries use bound parameters.
 - **Bot trap.** The form has a hidden `website` field that people never see and bots tend to fill, and a timestamp of when the page was rendered. A post is rejected if the hidden field is filled, or if the form was submitted less than 3 seconds after it was rendered, or if the timestamp is missing or invalid. Nothing is stored and the person's text is kept, so a false alarm costs one retry.
 - **Cross-site posts are refused** (`Sec-Fetch-Site` / `Origin` checks).
 - **Double submits** (the same name and message within a minute) are stored once.
 
 This is deliberately simple. It stops casual bots and mistakes, not a determined attacker. There is no rate limiting per visitor and no login. If spam becomes a problem, add a Cloudflare rate-limiting rule or Turnstile.
+
+## How the page behaves in the browser
+
+The form is an ordinary HTML form that works with no JavaScript: it posts, redirects, and shows the list with a thank-you banner. When JavaScript is available, a small script upgrades it:
+
+- **Live counter.** `N / 500` under the message box, counted in characters (an emoji is one). It turns darker near the limit and red over it. With the script active the browser's own `maxlength` is removed from the message box, because it counts UTF-16 units and would cut emoji messages short; an over-long message is stopped with an error before anything is sent.
+- **Posting without a reload.** The script sends the same form post with `fetch`, then swaps in the server-rendered message list, so the new message is on top and the count and page links are right. It adds a thank-you naming the sender, clears the message box (the name is kept), highlights the new message and scrolls it into view. If you were on page 2 it shows page 1, where the new message lives.
+- **Errors in place.** Validation errors and the bot-trap message appear next to the form, with your text kept.
+- **How it stays safe.** The script sends `X-Partial: 1` and the server answers with only the `<main>` markup, so no second copy of the page's inline style or script has to be parsed (the browser's CSP rejects that). Message text only reaches the page as server-rendered, escaped nodes or through `textContent`; a unit test fails if the script ever uses `innerHTML` or similar.
 
 ## The database
 
@@ -78,11 +88,11 @@ npm run dev       # http://localhost:8787
 
 ```sh
 npm test                 # unit tests (fast)
-npm run test:e2e         # starts the real Worker locally and drives it over HTTP
+npm run test:e2e         # starts the real Worker locally; drives it over HTTP and in real Chrome
 npm run deploy:dry-run   # bundles the Worker and validates the config, no login needed
 ```
 
-Run all three before pushing, because a push to `main` is a live deploy. A source-hygiene test fails if invisible or bidirectional-override characters end up in the code; write them as `\uXXXX` escapes.
+The browser tests (`test/e2e/browser.test.mjs`) need a local Chrome or Chromium and are skipped with a message if none is found; set `CHROME_PATH` to point at one. Run all three commands before pushing, because a push to `main` is a live deploy. A source-hygiene test fails if invisible or bidirectional-override characters end up in the code; write them as `\uXXXX` escapes.
 
 ## Connect the repo to Cloudflare (deploy on every push)
 
