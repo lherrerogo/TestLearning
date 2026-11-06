@@ -6,7 +6,18 @@
 import { html, raw } from './html.js';
 import { LIMITS } from './validate.js';
 
-const dateFormat = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' });
+// Fallback text for visitors without JavaScript: always UTC, and labelled as such. With
+// JavaScript, the page script rewrites each <time> in the visitor's own timezone and language.
+const dateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+  timeZone: 'UTC',
+  timeZoneName: 'short',
+});
 
 const STYLES = `
   :root {
@@ -144,6 +155,20 @@ const SCRIPT = `
     if (mq.addEventListener) mq.addEventListener('change', sync);
     sync();
 
+    // Show each message time in the visitor's own timezone and language. The server's UTC
+    // text inside <time datetime="..."> is the fallback if this does not run.
+    var shortTime = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    var longTime = new Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeStyle: 'long' });
+    function localizeTimes(scope) {
+      Array.prototype.forEach.call(scope.querySelectorAll('time[datetime]'), function (el) {
+        var d = new Date(el.getAttribute('datetime'));
+        if (isNaN(d.getTime())) return;
+        el.textContent = shortTime.format(d);
+        el.title = longTime.format(d);
+      });
+    }
+    localizeTimes(document);
+
     var form = document.getElementById('message-form');
     var nameInput = document.getElementById('name');
     var text = document.getElementById('message');
@@ -215,6 +240,7 @@ const SCRIPT = `
       current.replaceChildren.apply(current, Array.prototype.map.call(fresh.childNodes, function (n) { return document.importNode(n, true); }));
       // The fetched list is page 1; make the address bar agree if we were on another page.
       if (window.location.search) history.replaceState(null, '', '/');
+      localizeTimes(current);
       var first = current.querySelector('.entry');
       if (first) {
         first.classList.add('fresh');

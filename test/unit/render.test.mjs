@@ -189,3 +189,30 @@ describe('renderHome: partial (for the client script)', () => {
     assert.ok(!page.includes('</textarea><i>'));
   });
 });
+
+describe('message times', () => {
+  const at = (ms) => renderHome({ ...base, messages: [{ id: 1, name: 'A', message: 'B', created_at: ms }], total: 1 });
+
+  it('renders date and time in labelled UTC as the no-JavaScript fallback', () => {
+    assert.ok(at(Date.UTC(2026, 10, 6, 14, 5)).includes('<time datetime="2026-11-06T14:05:00.000Z">6 Nov 2026, 14:05 UTC</time>'));
+  });
+  it('uses a 24-hour clock with no "24:xx" at midnight', () => {
+    assert.ok(at(Date.UTC(2026, 0, 2, 0, 7)).includes('>2 Jan 2026, 00:07 UTC</time>'));
+    assert.ok(at(Date.UTC(2026, 11, 31, 23, 59)).includes('>31 Dec 2026, 23:59 UTC</time>'));
+  });
+  it('gives the client script an ISO timestamp to localize', () => {
+    assert.match(at(Date.UTC(2026, 10, 6, 14, 5)), /<time datetime="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z">/);
+  });
+});
+
+describe('client script: local times', () => {
+  it('formats with the visitor\'s own locale and timezone (no locale or zone given)', () => {
+    assert.ok(CLIENT_SCRIPT.includes('new Intl.DateTimeFormat(undefined, { dateStyle: \'medium\', timeStyle: \'short\' })'));
+    assert.ok(!/timeZone/.test(CLIENT_SCRIPT));
+  });
+  it('localizes on load and again after the list is swapped, writing only through textContent and title', () => {
+    assert.ok(CLIENT_SCRIPT.includes('localizeTimes(document);'));
+    assert.ok(CLIENT_SCRIPT.includes('localizeTimes(current);'));
+    assert.ok(CLIENT_SCRIPT.includes('el.textContent = shortTime.format(d);'));
+  });
+});

@@ -113,6 +113,18 @@ describe('posting messages', () => {
     assert.ok(!(await home()).text.includes('class="banner ok"'));
   });
 
+  it('shows each message with date and time, labelled UTC, in a <time> element', async () => {
+    const t = tag();
+    const before = Date.now();
+    await post({ name: 'Timey', message: `time-${t}` });
+    const { text } = await home();
+    const entry = text.split('<article class="entry">').find((chunk) => chunk.includes(`time-${t}`));
+    const m = /<time datetime="([^"]+)">(\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2} UTC)<\/time>/.exec(entry);
+    assert.ok(m, 'expected a <time> with date, time and UTC label');
+    const posted = Date.parse(m[1]);
+    assert.ok(posted >= before - 1000 && posted <= Date.now() + 1000, 'the datetime should be when it was posted');
+  });
+
   it('lists the newest message first', async () => {
     const t = tag();
     await post({ name: 'First', message: `first-${t}` });

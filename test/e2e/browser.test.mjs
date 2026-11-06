@@ -246,6 +246,61 @@ describe('in a real browser', { skip: chromePath ? false : 'Chrome not found (se
     assert.equal(await visibleText('form-error'), '');
   });
 
+  // ---- local time -------------------------------------------------------------
+
+  it('shows each message time in the visitor\'s own timezone and language, also after posting', async () => {
+    const t = tag();
+    await seed(1, `tz-${t}`);
+    // What the page itself says the first <time> should read, for a given language and zone.
+    const expected = (locale, zone) => chrome.evaluate(`(() => {
+      const el = document.querySelector('#list time');
+      return new Intl.DateTimeFormat(${q(locale)}, { dateStyle: 'medium', timeStyle: 'short', timeZone: ${q(zone)} }).format(new Date(el.getAttribute('datetime')));
+    })()`);
+    const shown = () => chrome.evaluate(`document.querySelector('#list time').textContent`);
+    try {
+      await chrome.send('Emulation.setLocaleOverride', { locale: 'de-DE' });
+
+      await chrome.send('Emulation.setTimezoneOverride', { timezoneId: 'Asia/Tokyo' });
+      await open();
+      const tokyo = await shown();
+      assert.equal(tokyo, await expected('de-DE', 'Asia/Tokyo'));
+      assert.ok(!tokyo.includes('UTC'), tokyo);
+      assert.ok((await chrome.evaluate(`document.querySelector('#list time').title`)).length > tokyo.length, 'the tooltip carries the long form');
+
+      await chrome.send('Emulation.setTimezoneOverride', { timezoneId: 'America/Los_Angeles' });
+      await open();
+      const la = await shown();
+      assert.equal(la, await expected('de-DE', 'America/Los_Angeles'));
+      assert.notEqual(la, tokyo, 'the same instant reads differently in another timezone');
+
+      // A message posted without a reload is localized too.
+      await fill('Zeit', `tz-new-${t}`);
+      await makeOld();
+      await send();
+      await chrome.waitFor(`document.querySelector('#list .entry .text')?.textContent === ${q(`tz-new-${t}`)}`);
+      assert.equal(await marker(), 'same page');
+      assert.equal(await shown(), await expected('de-DE', 'America/Los_Angeles'));
+      assert.ok(!(await shown()).includes('UTC'));
+      assert.equal(await chrome.evaluate(`[...document.querySelectorAll('#list time')].every((el) => !el.textContent.includes('UTC'))`), true);
+    } finally {
+      await chrome.send('Emulation.setTimezoneOverride', { timezoneId: '' });
+      await chrome.send('Emulation.setLocaleOverride', {});
+    }
+  });
+
+  it('shows labelled UTC times when scripts are disabled in the browser', async () => {
+    await seed(1, `nojs-${tag()}`);
+    await chrome.send('Emulation.setScriptExecutionDisabled', { value: true });
+    try {
+      await chrome.goto(`${server.base}/`);
+      // The page's script did not run: the counter stays empty and the time is the server's UTC text.
+      assert.equal(await chrome.evaluate(`document.getElementById('count').textContent`), '');
+      assert.match(await chrome.evaluate(`document.querySelector('#list time').textContent`), /^\d{1,2} [A-Z][a-z]{2} \d{4}, \d{2}:\d{2} UTC$/);
+    } finally {
+      await chrome.send('Emulation.setScriptExecutionDisabled', { value: false });
+    }
+  });
+
   // ---- last: nothing went wrong behind the scenes ----------------------------
 
   it('produced no CSP violations, console errors or script exceptions', () => {
