@@ -3,11 +3,24 @@
   // Must match the Worker name shown in the Cloudflare dashboard, or the
   // Git-connected build will fail with a name mismatch.
   "name": "testlearning",
+  "main": "src/index.js",
   "compatibility_date": "2026-11-05",
-  // Assets-only Worker: no `main` script. Cloudflare serves the files in
-  // ./public directly. Unknown paths return ./public/404.html with a 404 status.
   "assets": {
     "directory": "./public",
-    "not_found_handling": "404-page"
-  }
+    // The Worker reads the 404 page through this binding.
+    "binding": "ASSETS",
+    // Requests that match no file reach the Worker (it serves `/` and the 404
+    // page). Do not set this to "404-page": Cloudflare would then answer
+    // unknown paths itself and the Worker would never see `/`.
+    "not_found_handling": "none"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      // No database_id on purpose. The first `wrangler deploy` creates a database
+      // with this name; later deploys reuse the one bound to the Worker.
+      // The table itself is created by src/db.js on first use.
+      "database_name": "testlearning-messages"
+    }
+  ]
 }
