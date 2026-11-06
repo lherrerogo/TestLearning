@@ -14,7 +14,7 @@ Claude Code loads this file automatically. Keep it short and current.
 - **A push is a deploy, so check first.** Run `npm run deploy:dry-run` before pushing. For changes to routing, redirects or the 404 page, also run `npm run dev` and request the affected URLs (`/`, `/guide`, a bogus path).
 - **Wrangler is pinned exactly** (`package.json`, currently 4.158.0, needs Node >=22). Upgrade it deliberately and commit `package.json` and `package-lock.json` together.
 - **The Worker name in `wrangler.jsonc` must match the Worker name in the Cloudflare dashboard**, or the Git-connected build fails.
-- **Don't claim a deploy succeeded unless you saw it.** Claude has no Cloudflare account access and can't read build logs. Verify by requesting the live URL, or ask for the build result.
+- **Don't claim a deploy succeeded unless you saw it.** While the repo is public, the build result is readable without credentials: request `https://api.github.com/repos/lherrerogo/TestLearning/commits/<full-40-char-sha>/check-runs` (a short SHA returns 404) and look for `Workers Builds: testlearning` with `conclusion: success`. It can take a minute to appear after a push. Claude still has no Cloudflare account access, so no build logs and no live URL. Ask for the `workers.dev` URL if production needs testing.
 
 ## Content caution
 
