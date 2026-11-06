@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Handling a Baby: A Practical Guide</title>
+<meta name="description" content="A plain-language guide to picking up, holding, soothing, feeding, diapering, safe sleep, bathing and knowing when to call a doctor.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#fbf8f4">
+<script>
+/* Apply a saved theme before first paint so there is no flash. */
+(function () {
+  try {
+    var t = localStorage.getItem('guide-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
+<style>
+  :root {
+    --bg: #fbf8f4;
+    --surface: #ffffff;
+    --surface-2: #f4eee6;
+    --ink: #2a2622;
+    --muted: #675e55;
+    --border: #e6ddd1;
+    --accent: #2a7261;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2f0ec;
+    --red: #b3261e;
+    --red-soft: #fdecea;
+    --amber: #8a5200;
+    --amber-soft: #fff2d9;
+    --green: #1f6b3a;
+    --green-soft: #e4f3e8;
+    --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 6px 20px rgba(60, 40, 20, .05);
+    --radius: 18px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-head: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151311;
+      --surface: #1f1c19;
+      --surface-2: #2a2622;
+      --ink: #f1ece6;
+      --muted: #b5aba0;
+      --border: #38332e;
+      --accent: #74c7b3;
+      --accent-ink: #0d211c;
+      --accent-soft: #1d3832;
+      --red: #ff9a90;
+      --red-soft: #3b1f1d;
+      --amber: #f2bd68;
+      --amber-soft: #382c14;
+      --green: #8fd6a2;
+      --green-soft: #1c3324;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .25);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151311;
+    --surface: #1f1c19;
+    --surface-2: #2a2622;
+    --ink: #f1ece6;
+    --muted: #b5aba0;
+    --border: #38332e;
+    --accent: #74c7b3;
+    --accent-ink: #0d211c;
+    --accent-soft: #1d3832;
+    --red: #ff9a90;
+    --red-soft: #3b1f1d;
+    --amber: #f2bd68;
+    --amber-soft: #382c14;
+    --green: #8fd6a2;
+    --green-soft: #1c3324;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 var(--font);
+    overflow-wrap: break-word;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .skip {
+    position: absolute; left: 12px; top: -60px; z-index: 30;
+    background: var(--accent); color: var(--accent-ink);
+    padding: 10px 14px; border-radius: 10px; font-weight: 600; text-decoration: none;
+  }
+  .skip:focus { top: 12px; }
+
+  /* ---------- Header ---------- */
+  .hero { padding: 22px 0 18px; }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .eyebrow {
+    margin: 0; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .theme-btn {
+    appearance: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; font-size: .85rem; font-weight: 600;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 999px; padding: 7px 13px 7px 11px;
+    min-height: 40px;
+  }
+  .theme-btn svg { width: 18px; height: 18px; flex: none; }
+  h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(1.9rem, 7.5vw, 2.7rem); margin: 14px 0 10px; letter-spacing: -.01em; }
+  .sub { margin: 0; color: var(--muted); font-size: 1.05rem; max-width: 58ch; }
+
+  /* ---------- Section nav ---------- */
+  .toc {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .toc ul {
+    list-style: none; margin: 0 auto; padding: 8px 16px; max-width: 760px;
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .toc ul::-webkit-scrollbar { display: none; }
+  .toc a {
+    display: block; white-space: nowrap; text-decoration: none;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 14px; font-size: .9rem; font-weight: 600; min-height: 38px; line-height: 1.5;
+  }
+  .toc a[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .toc a.urgent { color: var(--red); border-color: var(--red); }
+  .toc a.urgent[aria-current="true"] { background: var(--red); color: var(--bg); }
+
+  /* ---------- Layout blocks ---------- */
+  main { padding: 20px 0 8px; }
+  section { scroll-margin-top: 70px; }
+
+  .sos {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--red-soft); border: 1.5px solid var(--red); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 20px;
+  }
+  .sos svg { width: 28px; height: 28px; flex: none; color: var(--red); margin-top: 2px; }
+  .sos p { margin: 0; }
+  .sos strong { color: var(--red); }
+
+  .essentials {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 20px 16px; margin-bottom: 22px;
+  }
+  .essentials h2 { font-size: 1.25rem; margin-bottom: 4px; }
+  .essentials > p { margin: 0 0 14px; color: var(--muted); }
+  .rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: rule; }
+  .rules li {
+    counter-increment: rule; position: relative;
+    background: var(--surface-2); border-radius: 12px; padding: 12px 14px 12px 50px;
+  }
+  .rules li::before {
+    content: counter(rule); position: absolute; left: 12px; top: 12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink);
+    font: 700 .85rem/26px var(--font-head); text-align: center;
+  }
+  .rules b { display: block; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 22px 16px 20px; margin-bottom: 22px;
+  }
+  .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .badge {
+    flex: none; width: 46px; height: 46px; border-radius: 14px;
+    display: grid; place-items: center; font-size: 1.5rem;
+    background: var(--accent-soft);
+  }
+  .sec-head h2 { font-size: 1.55rem; }
+  .sec-head .num { display: block; font: 700 .72rem/1 var(--font); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .lead { margin: 0 0 6px; color: var(--muted); font-size: 1.04rem; }
+  h3 { font-size: 1.1rem; margin: 22px 0 8px; }
+  p { margin: 0 0 12px; }
+
+  ul.list, ol.list { margin: 0 0 12px; padding-left: 1.3rem; }
+  ul.list li, ol.list li { margin-bottom: 6px; padding-left: 2px; }
+  ul.list li::marker { color: var(--accent); }
+
+  ol.steps { list-style: none; margin: 0 0 14px; padding: 0; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step; position: relative;
+    padding: 2px 0 14px 42px; margin: 0;
+  }
+  ol.steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 1px;
+    width: 29px; height: 29px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font: 700 .9rem/29px var(--font-head); text-align: center;
+  }
+  ol.steps li:not(:last-child)::after {
+    content: ""; position: absolute; left: 14px; top: 34px; bottom: 4px; width: 2px;
+    background: var(--border);
+  }
+
+  .callout {
+    border-radius: 14px; padding: 13px 14px 13px 14px; margin: 14px 0;
+    border: 1px solid transparent; border-left-width: 5px;
+  }
+  .callout > :last-child { margin-bottom: 0; }
+  .callout .tag {
+    display: block; font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .callout.tip   { background: var(--green-soft); border-color: var(--green); }
+  .callout.tip .tag { color: var(--green); }
+  .callout.avoid { background: var(--amber-soft); border-color: var(--amber); }
+  .callout.avoid .tag { color: var(--amber); }
+  .callout.alert { background: var(--red-soft); border-color: var(--red); }
+  .callout.alert .tag { color: var(--red); }
+  .callout.note  { background: var(--accent-soft); border-color: var(--accent); }
+  .callout.note .tag { color: var(--accent); }
+  .callout ul { margin: 6px 0 0; padding-left: 1.2rem; }
+  .callout li { margin-bottom: 4px; }
+
+  .grid { display: grid; gap: 12px; margin: 10px 0 14px; }
+  .mini { background: var(--surface-2); border-radius: 14px; padding: 14px; }
+  .mini h3 { margin: 0 0 4px; font-size: 1.03rem; }
+  .mini p { margin: 0 0 6px; font-size: .97rem; }
+  .mini p:last-child { margin-bottom: 0; }
+  .mini .when { color: var(--muted); font-size: .9rem; }
+
+  .table-wrap { overflow-x: auto; margin: 8px 0 14px; border: 1px solid var(--border); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; line-height: 1.45; }
+  caption { text-align: left; padding: 10px 10px 4px; font-weight: 700; font-size: .85rem; color: var(--muted); }
+  th, td { text-align: left; padding: 10px; vertical-align: top; border-top: 1px solid var(--border); }
+  thead th { background: var(--surface-2); border-top: 0; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  tbody th { font-weight: 700; }
+  caption + thead th, caption + tbody th { border-top: 0; }
+
+  /* ABC tiles */
+  .abc { display: grid; gap: 10px; margin: 12px 0 14px; }
+  .abc div { display: flex; gap: 14px; align-items: center; background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; }
+  .abc .letter { font: 800 2rem/1 var(--font-head); color: var(--accent); width: 34px; text-align: center; flex: none; }
+  .abc b { display: block; }
+
+  /* Doctor tiers */
+  .tier { border-radius: 16px; padding: 16px 14px; margin: 14px 0; border: 1.5px solid; }
+  .tier h3 { margin: 0 0 4px; font-size: 1.15rem; }
+  .tier > p { margin: 0 0 8px; }
+  .tier ul { margin: 0; padding-left: 1.25rem; }
+  .tier li { margin-bottom: 7px; }
+  .tier.red   { background: var(--red-soft);   border-color: var(--red); }
+  .tier.red h3 { color: var(--red); }
+  .tier.amber { background: var(--amber-soft); border-color: var(--amber); }
+  .tier.amber h3 { color: var(--amber); }
+  .tier.green { background: var(--green-soft); border-color: var(--green); }
+  .tier.green h3 { color: var(--green); }
+
+  details {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2);
+    margin: 10px 0; padding: 0;
+  }
+  summary { cursor: pointer; padding: 12px 14px; font-weight: 700; min-height: 44px; }
+  details[open] summary { border-bottom: 1px solid var(--border); }
+  details .inner { padding: 12px 14px 4px; }
+
+  footer { padding: 6px 0 56px; color: var(--muted); font-size: .9rem; }
+  footer p { margin-bottom: 10px; }
+  .to-top { display: inline-block; margin-top: 4px; font-weight: 600; }
+
+  @media (min-width: 640px) {
+    body { font-size: 18px; }
+    .wrap { padding: 0 24px; }
+    .toc ul { padding-left: 24px; padding-right: 24px; }
+    table { font-size: .95rem; }
+    th, td { padding: 10px 12px; }
+    .card, .essentials { padding: 28px 28px 24px; }
+    .rules { grid-template-columns: 1fr 1fr; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .abc { grid-template-columns: repeat(3, 1fr); }
+    .abc div { flex-direction: column; text-align: center; gap: 4px; }
+  }
+
+  /* Wide screens: let the chip row be wider than the text column so every chip stays visible. */
+  @media (min-width: 860px) {
+    .toc ul { max-width: 900px; justify-content: safe center; }
+  }
+
+  @media print {
+    :root { --bg: #fff; --surface: #fff; --surface-2: #f4f4f4; --ink: #000; --muted: #444; --border: #bbb; --shadow: none; color-scheme: light; }
+    .toc, .theme-btn, .skip, .to-top { display: none !important; }
+    .card, .essentials { break-inside: auto; box-shadow: none; }
+    .callout, .tier, .mini, ol.steps li { break-inside: avoid; }
+    details > * { display: block; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the guide</a>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <p class="eyebrow">Newborn to 12 months</p>
+      <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <span id="theme-label">Dark mode</span>
+      </button>
+    </div>
+    <h1>Handling a baby, calmly and safely</h1>
+    <p class="sub">Eight practical skills every new parent and carer needs, with the “why” behind each one. Read it through once, then use the tabs to jump back to what you need at 3&nbsp;a.m.</p>
+  </div>
+</header>
+
+<nav class="toc" id="toc" aria-label="Guide sections">
+  <ul>
+    <li><a href="#pick-up">Picking up</a></li>
+    <li><a href="#holding">Holding</a></li>
+    <li><a href="#soothing">Soothing</a></li>
+    <li><a href="#feeding">Feeding</a></li>
+    <li><a href="#diapering">Diapering</a></li>
+    <li><a href="#sleep">Safe sleep</a></li>
+    <li><a href="#bathing">Bathing</a></li>
+    <li><a href="#doctor" class="urgent">When to call</a></li>
+  </ul>
+</nav>
+
+<main id="main" class="wrap">
+
+  <div class="sos" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <p><strong>Emergency?</strong> If your baby is not breathing normally, has blue or grey lips, is limp or can’t be woken, call your local emergency number now (112, 911, 999, 000…). Don’t read on. <a href="#doctor">Full list of warning signs</a>.</p>
+  </div>
+
+  <section class="essentials" aria-labelledby="ess-h">
+    <h2 id="ess-h">The six rules behind everything else</h2>
+    <p>If you remember nothing else, remember these.</p>
+    <ol class="rules">
+      <li><b>Support the head and neck.</b> Newborns can’t hold their heads up for months.</li>
+      <li><b>Never shake a baby.</b> Not in play, not in frustration. Put them down safely and step away.</li>
+      <li><b>Back to sleep, every sleep.</b> Flat, firm, empty crib, in your room.</li>
+      <li><b>Never leave a baby alone</b> in water, on a bed or changing table, or on a sofa.</li>
+      <li><b>Wash your hands</b> before handling, feeding or changing.</li>
+      <li><b>Trust your gut.</b> If something feels wrong, call. Nobody will mind.</li>
+    </ol>
+  </section>
+
+  <!-- 1 ======================================================= -->
+  <section class="card" id="pick-up" aria-labelledby="h-pick">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🤲</div>
+      <div><span class="num">Skill 1</span><h2 id="h-pick">Picking up</h2></div>
+    </div>
+    <p class="lead">A baby’s neck muscles take roughly 4 to 6 months to strengthen. Until then, your hands <em>are</em> their neck.</p>
+
+    <h3>Step by step</h3>
+    <ol class="steps">
+      <li><b>Wash or sanitize your hands.</b> Newborns have immature immune systems, so ask visitors to do the same.</li>
+      <li><b>Say hello first.</b> Get into their view, talk softly and make eye contact so you don’t startle them.</li>
+      <li><b>Slide one hand under the head and neck,</b> and the other under the bottom and lower back.</li>
+      <li><b>Lift slowly and smoothly,</b> keeping the head level with, or slightly higher than, the body.</li>
+      <li><b>Bring them in close</b> to your chest. Being held against your body is steadier for you and calming for them.</li>
+      <li><b>To put them down,</b> reverse it: lower their back first with the head still supported, then slide your hands out and keep one resting on their chest for a moment.</li>
+    </ol>
+
+    <div class="callout avoid">
+      <span class="tag">Never</span>
+      <ul>
+        <li>Lift by the arms or armpits alone while the head is unsupported.</li>
+        <li>Shake, toss or bounce a baby vigorously. Shaking can cause permanent brain injury or death in seconds.</li>
+        <li>Pick a baby up while carrying a hot drink or other hot item.</li>
+      </ul>
+    </div>
+    <div class="callout tip">
+      <span class="tag">Later on</span>
+      <p>Once your baby holds their head steady on their own (around 4 to 6 months), you can lift with your hands under their armpits, but keep the other forearm supporting their back and bottom.</p>
+    </div>
+  </section>
+
+  <!-- 2 ======================================================= -->
+  <section class="card" id="holding" aria-labelledby="h-hold">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🫶</div>
+      <div><span class="num">Skill 2</span><h2 id="h-hold">Holding</h2></div>
+    </div>
+    <p class="lead">There’s no single right hold. Learn four and switch between them as your baby’s mood and needs change.</p>
+
+    <div class="grid two">
+      <article class="mini">
+        <h3>Cradle hold</h3>
+        <p class="when">Everyday cuddling, bottle feeding</p>
+        <p>Rest baby’s head in the crook of your elbow, with your forearm along their back and your hand cupping their bottom or thigh. Keep their head slightly higher than their body.</p>
+      </article>
+      <article class="mini">
+        <h3>Shoulder hold</h3>
+        <p class="when">Burping, settling, looking around</p>
+        <p>Lift baby so their chest is against yours and their chin rests on your shoulder. One hand supports the bottom, the other cradles head and neck.</p>
+      </article>
+      <article class="mini">
+        <h3>Football (clutch) hold</h3>
+        <p class="when">Breastfeeding, washing hair</p>
+        <p>Tuck baby along your forearm at your side like a football, with their head resting in your palm and their body supported by your arm.</p>
+      </article>
+      <article class="mini">
+        <h3>Belly-down carry</h3>
+        <p class="when">Gas, fussy evenings (awake only)</p>
+        <p>Lay baby face-down along your forearm with their head in the crook of your elbow, cheek turned, and your hand between their legs. The gentle pressure on the tummy often eases gas.</p>
+      </article>
+    </div>
+
+    <h3>Skin-to-skin</h3>
+    <p>With baby in just a diaper on your bare chest and a blanket over you both, skin-to-skin contact helps regulate their temperature, heartbeat and breathing, and supports feeding. Make sure their face is visible and their nose and mouth are clear, and stay awake while you do it.</p>
+
+    <h3>Using a baby carrier or sling</h3>
+    <p>Check every time with the <b>T.I.C.K.S.</b> rules:</p>
+    <ul class="list">
+      <li><b>T</b>ight: snug enough to hold baby against you.</li>
+      <li><b>I</b>n view at all times: you can always see their face.</li>
+      <li><b>C</b>lose enough to kiss: their head is high on your chest.</li>
+      <li><b>K</b>eep chin off the chest: leave a finger’s width under the chin so their airway stays open.</li>
+      <li><b>S</b>upported back: held in a natural, gently curved position, with knees higher than their bottom.</li>
+    </ul>
+
+    <div class="callout avoid">
+      <span class="tag">Be careful</span>
+      <ul>
+        <li>If you’re getting sleepy while holding baby on a sofa or armchair, put them in their crib first. Falling asleep together on soft furniture is one of the highest-risk situations.</li>
+        <li>Don’t cook, drink hot drinks or use the stove while holding a baby.</li>
+        <li>When handing baby to someone else, bring them in close and only let go once the other person is supporting the head and bottom. Don’t reach across to pass them.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 ======================================================= -->
+  <section class="card" id="soothing" aria-labelledby="h-soothe">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🎶</div>
+      <div><span class="num">Skill 3</span><h2 id="h-soothe">Soothing</h2></div>
+    </div>
+    <p class="lead">Crying is how babies talk. Your job isn’t to stop it instantly. It’s to work out what they’re asking for.</p>
+
+    <h3>First, run the checklist</h3>
+    <ul class="list">
+      <li><b>Hungry?</b> Look for rooting, hands to mouth and lip-smacking. Crying is a <em>late</em> hunger sign.</li>
+      <li><b>Dirty or wet?</b> Check the diaper.</li>
+      <li><b>Too hot or too cold?</b> Feel their chest or back of the neck. Hands and feet are often cool and that’s normal.</li>
+      <li><b>Gassy?</b> Try burping and the belly-down carry.</li>
+      <li><b>Tired or overstimulated?</b> Newborns manage only about 45 to 90 minutes awake. Dim the lights and quieten the room.</li>
+      <li><b>Just want closeness?</b> That’s a real need too. You can’t spoil a newborn by holding them.</li>
+    </ul>
+
+    <h3>The “5 S’s” calming routine</h3>
+    <div class="grid two">
+      <article class="mini"><h3>1 · Swaddle</h3><p>Wrap snugly. It mimics the womb and calms the startle reflex. See safety rules below.</p></article>
+      <article class="mini"><h3>2 · Side or stomach</h3><p>Hold baby on their side or tummy <em>in your arms only</em>. Always lay them on their back to sleep.</p></article>
+      <article class="mini"><h3>3 · Shush</h3><p>Make a steady, loud “shhh” near their ear, or use white noise. The womb was loud.</p></article>
+      <article class="mini"><h3>4 · Swing</h3><p>Small, slow, rhythmic movements with the head supported. Never big or fast jiggling.</p></article>
+      <article class="mini"><h3>5 · Suck</h3><p>A finger, breast, or pacifier gives instant comfort.</p></article>
+    </div>
+    <p>Other things that often work: a walk with a carrier or stroller, singing, a warm room with soft light, gentle tummy or back massage, or a change of scenery.</p>
+
+    <div class="callout note">
+      <span class="tag">Swaddling safely</span>
+      <ul>
+        <li>Snug around the chest and arms, <b>loose around the hips and legs</b> so they can bend and open. A tight leg wrap can harm hip development.</li>
+        <li>Always place swaddled babies on their back.</li>
+        <li>Stop swaddling as soon as baby shows signs of trying to roll (some do this from about 2 months).</li>
+        <li>Avoid weighted swaddles and sleep sacks.</li>
+      </ul>
+    </div>
+
+    <h3>What’s normal</h3>
+    <p>Crying typically increases from around 2 weeks, peaks at around 6 to 8 weeks (sometimes 2 to 3 hours a day in total), then eases by 3 to 4 months. If your baby cries for 3+ hours a day, 3+ days a week, for 3+ weeks and otherwise seems well, it may be colic. It’s very common and passes, but mention it to your doctor to rule out other causes.</p>
+
+    <div class="callout alert">
+      <span class="tag">If you feel you’re at breaking point</span>
+      <p>Crying that won’t stop is one of the hardest parts of parenting, and feeling desperate doesn’t make you a bad parent. If you’re close to losing your temper:</p>
+      <ul>
+        <li>Put the baby <b>on their back in the crib</b>, leave the room and close the door.</li>
+        <li>Take 10 to 15 minutes to breathe, drink water, or call someone you trust. A baby will be fine crying for a few minutes in a safe crib.</li>
+        <li><b>Never shake the baby.</b> If you’re worried you might, call a friend, family member or helpline right away.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4 ======================================================= -->
+  <section class="card" id="feeding" aria-labelledby="h-feed">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🍼</div>
+      <div><span class="num">Skill 4</span><h2 id="h-feed">Feeding</h2></div>
+    </div>
+    <p class="lead">Breast milk or infant formula is all a baby needs for around the first 6 months. Feed responsively: follow your baby’s cues rather than the clock.</p>
+
+    <h3>Hunger and fullness cues</h3>
+    <div class="grid two">
+      <article class="mini">
+        <h3>Hungry</h3>
+        <p>Turning towards your hand or chest (rooting), hands to mouth, lip-smacking, increased alertness. Crying comes late.</p>
+      </article>
+      <article class="mini">
+        <h3>Full</h3>
+        <p>Turning away, closing lips, slowing down or falling asleep, relaxed open hands.</p>
+      </article>
+    </div>
+
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Rough feeding guide by age">
+      <table>
+        <caption>Rough guide only. Babies vary a lot, and breastfed babies feed on demand.</caption>
+        <thead><tr><th scope="col">Age</th><th scope="col">How often</th><th scope="col">Formula per feed</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Week 1</th><td>Every 2–3 hours (8–12 a day)</td><td>30–60 ml (1–2&nbsp;oz), building quickly</td></tr>
+          <tr><th scope="row">Weeks&nbsp;2–4</th><td>Every 2–4 hours</td><td>60–90 ml (2–3&nbsp;oz)</td></tr>
+          <tr><th scope="row">2&nbsp;months</th><td>Every 3–4 hours</td><td>120–150 ml (4–5&nbsp;oz)</td></tr>
+          <tr><th scope="row">4&nbsp;months</th><td>Every 4 hours</td><td>120–180 ml (4–6&nbsp;oz)</td></tr>
+          <tr><th scope="row">6&nbsp;months</th><td>4–6 feeds a day plus first solids</td><td>Up to 240 ml (8&nbsp;oz)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Newborns lose up to 7–10% of their birth weight in the first days and usually regain it by 10 to 14 days. Weight checks with your midwife or doctor confirm that feeding is going well.</p>
+
+    <h3>Breastfeeding</h3>
+    <ul class="list">
+      <li><b>Get comfortable,</b> with your back and arms supported. Bring baby to the breast, not you to baby.</li>
+      <li><b>Line baby up</b> tummy-to-tummy, with ear, shoulder and hip in a line so they don’t have to twist.</li>
+      <li><b>Wait for a wide-open mouth,</b> then bring them on with their chin touching the breast and more of the dark areola showing above their top lip than below the bottom.</li>
+      <li><b>A good latch</b> feels like a strong tug, not pinching. You should see and hear steady swallowing.</li>
+      <li>Early tenderness is common, but ongoing pain isn’t. A lactation consultant, midwife or health visitor can fix most latch problems quickly.</li>
+    </ul>
+
+    <h3>Bottle feeding, step by step</h3>
+    <ol class="steps">
+      <li><b>Wash your hands</b> and clean the bottle and nipple.</li>
+      <li><b>Mix formula exactly as the label says.</b> Never dilute it or add extra powder.</li>
+      <li><b>Check the temperature:</b> a few drops on the inside of your wrist should feel lukewarm, not hot. Don’t microwave bottles (hot spots can scald).</li>
+      <li><b>Hold baby semi-upright</b> with their head higher than their stomach. Touch the nipple to their lip and wait for a wide mouth.</li>
+      <li><b>Feed in a “paced” way:</b> hold the bottle close to horizontal and pause every few sucks so baby can set the speed and doesn’t gulp.</li>
+      <li><b>Burp</b> halfway and at the end (see below).</li>
+      <li><b>Throw away</b> anything left in the bottle within an hour of starting the feed.</li>
+    </ol>
+    <div class="callout note">
+      <span class="tag">Formula safety</span>
+      <p>Powdered formula isn’t sterile. WHO and the NHS advise mixing it with water that is still at least 70&nbsp;°C (boil the kettle and use it within 30 minutes), then cooling the bottle quickly under cold running water. Follow any local guidance from your health service on water safety.</p>
+    </div>
+    <div class="callout avoid">
+      <span class="tag">Never</span>
+      <p>Prop a bottle on a pillow or leave a baby feeding unattended. It risks choking and ear infections.</p>
+    </div>
+
+    <h3>Burping</h3>
+    <p>Burp during and after each feed. Hold baby upright over your shoulder or sitting on your lap with your hand supporting their chin and chest, then pat or rub their back for a minute or two. If nothing comes up, move on; not every feed needs a burp. Some spit-up is normal.</p>
+
+    <h3>Good to know</h3>
+    <ul class="list">
+      <li><b>Expressed breast milk</b> keeps up to 4 hours at room temperature, up to 4 days in the fridge, and about 6 months in the freezer.</li>
+      <li><b>Vitamin D:</b> most health services recommend a daily supplement for breastfed babies. Ask your doctor.</li>
+      <li><b>Nothing but milk until about 6 months,</b> including water, juice or tea.</li>
+      <li><b>Solids</b> start around 6 months (never before 4), when baby sits with support, holds their head steady, shows interest in food and no longer pushes it out with their tongue.</li>
+      <li><b>No honey before 12 months</b> (risk of infant botulism), and no cow’s milk as a main drink before 12 months.</li>
+    </ul>
+  </section>
+
+  <!-- 5 ======================================================= -->
+  <section class="card" id="diapering" aria-labelledby="h-diaper">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🧷</div>
+      <div><span class="num">Skill 5</span><h2 id="h-diaper">Diapering</h2></div>
+    </div>
+    <p class="lead">Expect 8 to 10 changes a day in the early weeks. Change after feeds or when soiled, and at least every 2 to 3 hours.</p>
+
+    <h3>Get set up</h3>
+    <p>Clean diaper, wipes (or cotton balls and warm water for the first weeks), barrier cream, a changing mat on a flat surface, and a spare outfit. Have everything within arm’s reach before you start.</p>
+
+    <h3>Step by step</h3>
+    <ol class="steps">
+      <li><b>Wash your hands,</b> then lay baby on their back on the mat. Keep one hand on them whenever they’re on a raised surface. Never turn away, even for a second.</li>
+      <li><b>Open the dirty diaper</b> but leave it under them. Use its clean front part to wipe away the worst.</li>
+      <li><b>Lift their legs</b> gently by the ankles and wipe from front to back. This matters most for girls to avoid infections. Clean the skin folds. For boys, a cloth over the penis catches surprise sprays.</li>
+      <li><b>Slide the dirty diaper out,</b> fold it closed and set it aside.</li>
+      <li><b>Let the skin dry,</b> then add a thin layer of barrier cream if it looks red.</li>
+      <li><b>Slide the clean diaper under,</b> with the back edge level with the waist. For newborns, fold the front down so it sits <em>below</em> the umbilical cord stump.</li>
+      <li><b>Fasten snugly,</b> with room for two fingers at the waist, and pull the leg ruffles out so they don’t leak.</li>
+      <li><b>Dress baby, dispose of the diaper and wash your hands.</b></li>
+    </ol>
+
+    <h3>What’s in the diaper tells you if feeding is going well</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Expected diapers by day of life">
+      <table>
+        <caption>Minimum wet diapers per 24 hours</caption>
+        <thead><tr><th scope="col">Day</th><th scope="col">Wet diapers</th><th scope="col">Poo</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1</th><td>1 or more</td><td>Black-green, sticky (meconium)</td></tr>
+          <tr><th scope="row">2</th><td>2 or more</td><td>Dark green to brown</td></tr>
+          <tr><th scope="row">3</th><td>3 or more</td><td>Turning green-yellow</td></tr>
+          <tr><th scope="row">4</th><td>4 or more</td><td>Yellow-ish</td></tr>
+          <tr><th scope="row">5+</th><td>6 or more</td><td>Breastfed: soft, yellow, seedy, often several a day. Formula&#8209;fed: tan to brown, paste&#8209;like.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout alert">
+      <span class="tag">Call your doctor if</span>
+      <ul>
+        <li>Poo is <b>white, pale grey or clay-colored</b>, contains <b>red blood</b>, or is <b>black after the first few days</b>.</li>
+        <li>There are fewer wet diapers than the table shows, or the urine looks dark and strong-smelling.</li>
+      </ul>
+    </div>
+
+    <h3>Diaper rash</h3>
+    <ul class="list">
+      <li>Change often, rinse with plain warm water, pat dry, and give some diaper-free time.</li>
+      <li>Use a zinc oxide barrier cream. Skip scented wipes and powders.</li>
+      <li>See your doctor if it hasn’t improved in 2 to 3 days, or has blisters, pus, bleeding, or bright red patches with small red spots around them (a likely yeast infection).</li>
+    </ul>
+    <p><b>Cord stump:</b> keep it clean and dry and let it fall off by itself (usually 1 to 3 weeks). <b>Uncircumcised boys:</b> do not pull back the foreskin.</p>
+  </section>
+
+  <!-- 6 ======================================================= -->
+  <section class="card" id="sleep" aria-labelledby="h-sleep">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🌙</div>
+      <div><span class="num">Skill 6</span><h2 id="h-sleep">Safe sleep</h2></div>
+    </div>
+    <p class="lead">Following these rules every single time greatly lowers the risk of sudden infant death syndrome (SIDS) and accidental suffocation.</p>
+
+    <div class="abc">
+      <div><span class="letter" aria-hidden="true">A</span><span><b>Alone</b>Own sleep space, no one else, no objects.</span></div>
+      <div><span class="letter" aria-hidden="true">B</span><span><b>Back</b>On their back for every sleep, naps included.</span></div>
+      <div><span class="letter" aria-hidden="true">C</span><span><b>Crib</b>Firm, flat, clear. Close to you.</span></div>
+    </div>
+
+    <h3>Set up the sleep space</h3>
+    <ul class="list">
+      <li>Use a <b>crib, bassinet or play yard that meets current safety standards</b>, with a firm, flat mattress and a fitted sheet only.</li>
+      <li><b>Bare is best:</b> no pillows, blankets, bumpers, soft toys, positioners or wedges.</li>
+      <li><b>Room-share, don’t bed-share.</b> Keep the crib in your room for at least the first 6 months, ideally up to a year.</li>
+      <li>Keep the sleep area <b>smoke-free</b>, and never sleep with baby after drinking alcohol or taking sedating medication.</li>
+      <li>Put baby on their back <b>even once they can roll.</b> If they roll over on their own, you needn’t keep turning them.</li>
+    </ul>
+
+    <h3>Dress for the temperature</h3>
+    <ul class="list">
+      <li>Aim for a room around <b>16–20&nbsp;°C (61–68&nbsp;°F).</b></li>
+      <li>Dress baby in about one more layer than you’d be comfortable in, or use a wearable blanket or sleep sack. No hats indoors.</li>
+      <li><b>Check for overheating:</b> sweating, damp hair, flushed cheeks, or a hot chest or tummy. Feel the chest, not the cold hands and feet.</li>
+    </ul>
+
+    <div class="callout avoid">
+      <span class="tag">Higher-risk situations</span>
+      <ul>
+        <li><b>Sofas and armchairs.</b> Sleeping with a baby on one is extremely dangerous.</li>
+        <li><b>Car seats, strollers, swings and carriers</b> aren’t for routine sleep. If baby dozes off in one, move them to a flat surface as soon as you can.</li>
+        <li><b>Inclined sleepers</b> and any product that holds a baby on a slope. Avoid them.</li>
+        <li><b>Feeding in bed</b> when drowsy. Have a plan to move baby to their own space if you doze off.</li>
+      </ul>
+    </div>
+
+    <h3>Things that help</h3>
+    <ul class="list">
+      <li><b>Breastfeeding</b> and <b>up-to-date vaccinations</b> are both linked to lower SIDS risk.</li>
+      <li><b>A pacifier at naps and bedtime</b> is also linked to lower risk. Wait until breastfeeding is established (around 3–4 weeks) and don’t force it. Don’t attach it to a cord around the neck.</li>
+      <li><b>Supervised tummy time while awake</b> builds neck and shoulder strength. A few minutes, several times a day.</li>
+    </ul>
+    <p>Newborns sleep about 14 to 17 hours a day in short stretches. Waking every 2 to 4 hours to feed is normal, and sleep patterns mature gradually over the first year.</p>
+  </section>
+
+  <!-- 7 ======================================================= -->
+  <section class="card" id="bathing" aria-labelledby="h-bath">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🛁</div>
+      <div><span class="num">Skill 7</span><h2 id="h-bath">Bathing</h2></div>
+    </div>
+    <p class="lead">Babies don’t get very dirty. Two or three baths a week is plenty, and more can dry out their skin.</p>
+
+    <div class="callout alert">
+      <span class="tag">The one rule</span>
+      <p><b>Never leave a baby alone in or near water, not even for a moment.</b> Drowning is silent, fast, and can happen in a few centimeters of water. If the phone or door goes, wrap the baby in a towel and take them with you.</p>
+    </div>
+
+    <h3>Sponge bath or tub?</h3>
+    <p>Until the umbilical cord stump has fallen off and healed (about 1 to 3 weeks), and after a circumcision until it has healed, give a <b>sponge bath</b>: lay baby on a towel on a flat surface, keep them wrapped, and uncover and wash one body part at a time with a damp cloth. After that, move to a baby bath or the tub.</p>
+
+    <h3>Set up</h3>
+    <ul class="list">
+      <li>Warm room, with everything within reach: two washcloths, mild fragrance-free baby wash, hooded towel, clean diaper and clothes.</li>
+      <li>Fill with only <b>5–8&nbsp;cm (2–3&nbsp;inches)</b> of water. Run the cold first, then the hot, and mix well.</li>
+      <li>Water should be about <b>37–38&nbsp;°C (98–100&nbsp;°F)</b>. Test with your elbow or a thermometer; it should feel comfortably warm, not hot.</li>
+      <li>Set your home’s water heater to no more than <b>49&nbsp;°C (120&nbsp;°F)</b> to prevent scalds.</li>
+    </ul>
+
+    <h3>Step by step</h3>
+    <ol class="steps">
+      <li><b>Undress baby</b> and wrap them in a towel. Ease them in feet first, with the towel or a warm wet cloth over their chest to keep them warm.</li>
+      <li><b>Support the head and neck</b> with one hand and forearm throughout. Never let go.</li>
+      <li><b>Wash the face first with plain water:</b> wipe each eye from the inner corner outward, using a clean part of the cloth for each.</li>
+      <li><b>Wash the hair,</b> then the body from top to bottom, and the diaper area last. Get into the neck, armpit and groin folds.</li>
+      <li><b>Rinse and lift out,</b> wrapping them in the hooded towel right away.</li>
+      <li><b>Pat dry,</b> especially the skin folds and behind the ears. Moisturize if their skin is dry, then diaper and dress.</li>
+    </ol>
+
+    <div class="callout tip">
+      <span class="tag">Handy extras</span>
+      <ul>
+        <li>Trim nails with baby clippers or a soft file when baby is calm or asleep to prevent scratches.</li>
+        <li>Skip adult products, bubble bath, oils in the water and talcum powder (the dust can be inhaled).</li>
+        <li>Bath seats and rings are <b>not</b> safety devices. They don’t replace your hands.</li>
+        <li>Never leave a young sibling in charge of the baby.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 ======================================================= -->
+  <section class="card" id="doctor" aria-labelledby="h-doc">
+    <div class="sec-head">
+      <div class="badge" aria-hidden="true">🩺</div>
+      <div><span class="num">Skill 8</span><h2 id="h-doc">When to call a doctor</h2></div>
+    </div>
+    <p class="lead">Babies can get worse quickly. This page is a guide, not a diagnosis. <b>If you’re worried, call.</b> That is always the right choice.</p>
+
+    <div class="tier red">
+      <h3>🚨 Call emergency services now (112 / 911 / 999 / 000)</h3>
+      <ul>
+        <li>Not breathing, or pauses in breathing; blue, grey or very pale lips or face.</li>
+        <li>Struggling to breathe: grunting, flaring nostrils, ribs sucking in, very fast breathing.</li>
+        <li>Floppy, limp, unresponsive, or can’t be woken.</li>
+        <li>A seizure (jerking movements or a stare that doesn’t respond to you).</li>
+        <li>Choking that you can’t clear.</li>
+        <li>Bleeding that won’t stop, or a serious fall or head injury, especially with vomiting or drowsiness.</li>
+        <li>A rash of tiny dark spots or bruises that <b>doesn’t fade when pressed</b> with a glass, with fever or a poorly baby.</li>
+        <li>Swallowed something poisonous (also contact your poison helpline).</li>
+        <li>Anything that makes you think “something is badly wrong.”</li>
+      </ul>
+    </div>
+
+    <div class="tier amber">
+      <h3>📞 Call your doctor or urgent line right away (day or night)</h3>
+      <ul>
+        <li><b>Fever of 38.0&nbsp;°C (100.4&nbsp;°F) or higher in a baby under 3 months.</b> Do this even if they seem fine. Don’t give fever medicine before speaking to a doctor.</li>
+        <li><b>3 months or older:</b> fever of 39&nbsp;°C (102.2&nbsp;°F) or higher, fever lasting more than 24 hours, or any fever with poor drinking, unusual drowsiness, a rash, or if you’re worried.</li>
+        <li>Refusing feeds, or feeding poorly for 2 or more feeds in a row.</li>
+        <li>Signs of dehydration: no wet diaper for 6–8 hours, a sunken soft spot on the head, dry mouth, no tears when crying, unusually sleepy.</li>
+        <li>Repeated or forceful vomiting; green (bile) or bloody vomit; a swollen, hard tummy.</li>
+        <li>Blood in the poo, or white or pale poo.</li>
+        <li>Yellow skin or eyes (jaundice) that is spreading, is deepening, or comes with sleepiness or poor feeding.</li>
+        <li>Unusually sleepy or hard to wake for feeds, or a high-pitched, inconsolable cry.</li>
+        <li>A bulging soft spot on the head when baby is calm and upright.</li>
+        <li>Fast or noisy breathing, or a wet-sounding cough that’s getting worse.</li>
+        <li>Cord stump that is red, swollen, leaking pus, smelly, or bleeding.</li>
+        <li>Any fall or knock to the head, even if baby seems fine.</li>
+      </ul>
+    </div>
+
+    <div class="tier green">
+      <h3>🗓️ Book a routine appointment or call in office hours</h3>
+      <ul>
+        <li>Mild cold symptoms where baby is still feeding and alert.</li>
+        <li>Diaper rash not improving after 2 to 3 days.</li>
+        <li>Spit-up in a baby who is feeding well and gaining weight.</li>
+        <li>Hard, pellet-like poo or straining that seems painful.</li>
+        <li>Cradle cap, crusty eyes or blocked tear ducts.</li>
+        <li>Questions about feeding, sleep, vaccines, or development.</li>
+      </ul>
+    </div>
+
+    <details>
+      <summary>How to take a baby’s temperature</summary>
+      <div class="inner">
+        <ul class="list">
+          <li>Under 3 months, use a <b>digital thermometer rectally</b>. It’s the most accurate. Use petroleum jelly on the tip, insert about 1&nbsp;cm (½&nbsp;inch) and stop if you meet any resistance.</li>
+          <li>Armpit and forehead readings are less accurate. If one is high in a young baby, confirm it, or call your doctor.</li>
+          <li>Don’t overdress or over-bundle a baby with a fever.</li>
+          <li>Never use a glass mercury thermometer.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>What to have ready when you call</summary>
+      <div class="inner">
+        <ul class="list">
+          <li>Your baby’s age (and whether they were born early) and their weight.</li>
+          <li>Temperature, how you took it, and when.</li>
+          <li>What’s changed: feeding, wet diapers, sleep, breathing, skin color, behavior.</li>
+          <li>Any medicines or vaccines given recently.</li>
+          <li>A pen and paper, and your local pharmacy’s details.</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="callout note">
+      <span class="tag">Keep these handy</span>
+      <p>Save your pediatrician’s or health visitor’s number, your after-hours medical line and your poison helpline in your phone, and stick them on the fridge. Go to every scheduled check-up and vaccination appointment.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>Please note:</b> this guide is general information to help you feel confident. It isn’t medical advice and can’t replace your doctor, midwife, or health visitor. Recommendations differ a little between countries, so follow the advice of your own health service where it differs. It is based on widely published guidance, including that of the American Academy of Pediatrics, the NHS, the WHO and the CDC.</p>
+    <a class="to-top" href="#main">Back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('theme-btn');
+  var label = document.getElementById('theme-label');
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    return t ? t === 'dark' : mq.matches;
+  }
+  function sync() {
+    var dark = isDark();
+    btn.setAttribute('aria-pressed', String(dark));
+    label.textContent = dark ? 'Light mode' : 'Dark mode';
+    meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+  }
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('guide-theme', next); } catch (e) {}
+    sync();
+  });
+  if (mq.addEventListener) mq.addEventListener('change', sync);
+  sync();
+
+  /* Highlight the current section in the nav and keep its chip in view. */
+  var nav = document.getElementById('toc');
+  var strip = nav.querySelector('ul');
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+
+  function setCurrent(id) {
+    links.forEach(function (a) {
+      if (a === byId[id]) {
+        a.setAttribute('aria-current', 'true');
+        var target = a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2;
+        strip.scrollTo({ left: target, behavior: 'auto' });
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) setCurrent(e.target.id); });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    Object.keys(byId).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+})();
+</script>
+</body>
+</html>
