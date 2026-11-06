@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match the Worker name shown in the Cloudflare dashboard, or the
+  // Git-connected build will fail with a name mismatch.
+  "name": "testlearning",
+  "compatibility_date": "2026-11-05",
+  // Assets-only Worker: no `main` script. Cloudflare serves the files in
+  // ./public directly. Unknown paths return ./public/404.html with a 404 status.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}

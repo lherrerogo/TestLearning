@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<script>
+/* Reuse the theme saved by the guide's toggle, if any (same origin). */
+(function () {
+  try {
+    var t = localStorage.getItem('guide-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
+<style>
+  :root {
+    --bg: #fbf8f4;
+    --surface: #ffffff;
+    --ink: #2a2622;
+    --muted: #675e55;
+    --border: #e6ddd1;
+    --accent: #2a7261;
+    --accent-ink: #ffffff;
+    --red: #b3261e;
+    --red-soft: #fdecea;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-head: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151311;
+      --surface: #1f1c19;
+      --ink: #f1ece6;
+      --muted: #b5aba0;
+      --border: #38332e;
+      --accent: #74c7b3;
+      --accent-ink: #0d211c;
+      --red: #ff9a90;
+      --red-soft: #3b1f1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151311;
+    --surface: #1f1c19;
+    --ink: #f1ece6;
+    --muted: #b5aba0;
+    --border: #38332e;
+    --accent: #74c7b3;
+    --accent-ink: #0d211c;
+    --red: #ff9a90;
+    --red-soft: #3b1f1d;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 var(--font);
+  }
+  main {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px 22px 26px;
+    text-align: center;
+  }
+  .code {
+    margin: 0 0 4px;
+    font: 800 .8rem/1 var(--font);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    margin: 0 0 12px;
+    font: 700 clamp(1.7rem, 7vw, 2.2rem)/1.2 var(--font-head);
+    letter-spacing: -.01em;
+  }
+  p { margin: 0 0 18px; color: var(--muted); }
+  .btn {
+    display: inline-block;
+    min-height: 44px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .sos {
+    margin: 24px 0 0;
+    padding: 12px 14px;
+    border: 1.5px solid var(--red);
+    border-radius: 14px;
+    background: var(--red-soft);
+    color: var(--ink);
+    font-size: .93rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .sos strong { color: var(--red); }
+</style>
+</head>
+<body>
+<main>
+  <p class="code">Error 404</p>
+  <h1>We couldn’t find that page</h1>
+  <p>The link may be mistyped or out of date. The guide is only a tap away.</p>
+  <a class="btn" href="/guide">Go to the guide</a>
+  <p class="sos" role="note"><strong>Emergency?</strong> If your baby is not breathing normally, is limp or can’t be woken, call your local emergency number now (112, 911, 999, 000…).</p>
+</main>
+</body>
+</html>

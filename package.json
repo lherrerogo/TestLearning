@@ -1,0 +1,17 @@
+{
+  "name": "testlearning",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static baby-handling guide, served by a Cloudflare Worker with static assets.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "wrangler": "4.158.0"
+  }
+}
